@@ -33,6 +33,14 @@ struct trolley {//快递小车
 	int dweight;//自重
 	int maxlweight;//最大装载重量
 };
-string task3(const string& command);
 
-// aaa
+void init(const string& command); //预处理（如导入图），返回类型暂时为void，可根据需要更改
+
+string task1(const string& command);
+string task2(const string& command);
+string task3(const string& command);
+string task4(const string& command);
+string task5(const string& command);
+string extask1(const string& command);
+string extask2(const string& command);
+string extask3(const string& command);
