@@ -13,13 +13,15 @@
 #include <unordered_set>
 #include <filesystem>
 #include <windows.h>
-using namespace std;
 #include <climits>
 #include <set>
 #include <cctype>
 #include <stack>
 
 #include "CaiNiaoStation.h"
+
+using namespace std;
+
 struct Edge
 {
     int v;
@@ -72,6 +74,26 @@ vector<long long> MAP::Dijkstra(int start){
     }
 	return dist;
 }
+
+void Init(const string& command)
+{
+	istringstream iss(command);
+	int n, m;
+	iss >> n >> m;
+	for(int i = 0;i < n;++i)
+	{
+		string t;
+		iss >> t;
+		g.InsertLocation(t);
+	}
+	for(int i = 0;i < m;++i)
+	{
+		int u, v, w;
+		iss >> u >> v >> w;
+		g.InsertRoad(u, v, w);
+	}
+}
+
 string task3(const string& command) {
 	stringstream ss(command);
 	int carnum; ss >> carnum;
@@ -82,10 +104,5 @@ string task3(const string& command) {
 	vector<Package> packages(packnum);
 	for (int i = 0; i < packnum; i++)
 		ss >> packages[i].id >> packages[i].weight >> packages[i].dest >> packages[i].Stime >> packages[i].Ttime;
-
-}
-
-int main()
-{
 
 }

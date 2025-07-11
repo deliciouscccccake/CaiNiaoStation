@@ -18,9 +18,9 @@ public:
 	std::vector<std::vector<EdgeNode>> Roads;//邻接表，第一个元素为空
 	MAP() {Roads.push_back(std::vector<EdgeNode>());}
 	bool InsertLocation(const string &target);//添加元素
-	bool InsertRoad(int id1, int id2, int distance);
+	bool InsertRoad(int id1, int id2, int distance);//添加id1和id2之间的双向边
 	std::vector<long long> Dijkstra(int start);//计算单个点到各个点的最小距离
-};
+}g;
 struct Package {
 	int id;
 	int weight;
@@ -34,7 +34,7 @@ struct trolley {//快递小车
 	int maxlweight;//最大装载重量
 };
 
-void init(const string& command); //预处理（如导入图），返回类型暂时为void，可根据需要更改
+void Init(const string& command); //接受的string是从文件读入的结果，预处理（如导入图），返回类型暂时为void，可根据需要更改
 
 string task1(const string& command);
 string task2(const string& command);
