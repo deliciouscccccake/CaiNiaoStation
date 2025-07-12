@@ -46,7 +46,6 @@ bool MAP::InsertRoad(int id1, int id2, int distance) {
 	Roads[id2].push_back({ id1, distance });
 	return true;
 }
-
 vector<long long> MAP::Dijkstra(int start) {	// %£ºĞŞ¸ÄÁËdijkstra£¬Ê¹Ö®ÊÊÅäĞŞ¸ÄºóµÄÊı¾İ½á¹¹
 	vector<int> visited(Loclist.size(), 0);//¼ÇÂ¼±éÀú¹ıµÄ½Úµã
 	vector<long long> dist(Loclist.size(), LLONG_MAX);//¼ÇÂ¼µ½ÆğµãµÄ×î¶ÌÂ·¾¶³¤
@@ -73,7 +72,6 @@ vector<long long> MAP::Dijkstra(int start) {	// %£ºĞŞ¸ÄÁËdijkstra£¬Ê¹Ö®ÊÊÅäĞŞ¸Äº
 	}
 	return dist;
 }
-
 string task3(const string& command) {
 	set<long long> TOpackage;//¼ÇÂ¼³¬Ê±µÄ°ü¹ü£¬Ë³ĞòÊä³ö
 	map<long long, long long> Cpackage;//¼ÇÂ¼Ã¿¸ö°ü¹üÔËÊä´ú¼Û£¬Ë³ĞòÊä³ö£¬´ú¼ÛÎª°ü¹üÖØ+ĞĞÊ»¾àÀë
@@ -116,7 +114,7 @@ string task3(const string& command) {
 					break;
 			}
 		}
-		long long current_spot = 0;
+		long long current_spot = 1;
 		HeapSort_For_PA prqueues(dist, selected_packages, current_spot);
 		for (auto it : selected_packages) 
 			prqueues.push(it.first);
@@ -135,12 +133,12 @@ string task3(const string& command) {
 			}
 		}
 		while (!prqueues.empty()) {
-			long long preo = orders;
+			current_spot = orders;
 			prqueues.Resort();
 			orders = prqueues.pop();
-			costs += (car.curload + car.dweight) * dist[preo][orders];
-			curtime += dist[preo][orders] / car.speed;
-			distance += dist[preo][orders];
+			costs += (car.curload + car.dweight) * dist[current_spot][orders];
+			curtime += dist[current_spot][orders] / car.speed;
+			distance += dist[current_spot][orders];
 			while (!selected_packages[orders].empty()) {
 				Package temp = selected_packages[orders].top();
 				selected_packages[orders].pop();
@@ -173,3 +171,129 @@ string task3(const string& command) {
 	}
 	return result;
 }
+string extask1(const string& command) {
+	set<long long> TOpackage;//¼ÇÂ¼³¬Ê±µÄ°ü¹ü£¬Ë³ĞòÊä³ö
+	map<long long, long long> Cpackage;//¼ÇÂ¼Ã¿¸ö°ü¹üÔËÊä´ú¼Û£¬Ë³ĞòÊä³ö£¬´ú¼ÛÎª°ü¹üÖØ+ĞĞÊ»¾àÀë
+	long long distance = 0;//¼ÇÂ¼ÒÑ¾­ĞĞ×ßµÄ¾àÀë
+	long long TimeOutPackages = 0;//¼ÇÂ¼³¬Ê±°ü¹üÊı
+	long long costs = 0;//¼ÇÂ¼×Ü´ú¼Û
+	vector<long long> curtime (2,0);//¼ÇÂ¼Ã¿Á¾Ğ¡³µµÄÊ±¼ä
+
+
+	stringstream ss(command);
+	int carnum; ss >> carnum;
+	vector<trolley> cars(carnum);
+	for (int i = 0; i < carnum; i++) 
+		ss >> cars[i].speed >> cars[i].dweight >> cars[i].maxlweight;
+	long long packnum; ss >> packnum;
+	vector<Package> packages(packnum);
+	for (long long i = 0; i < packnum; i++)
+		ss >> packages[i].id >> packages[i].weight >> packages[i].dest >> packages[i].Stime >> packages[i].Ttime;
+
+
+	vector<vector<long long>> dist(ecmap.Loclist.size()); int curCarID = 0;
+	for (long long i = 1; i < ecmap.Loclist.size(); i++) {
+		dist[i] = ecmap.Dijkstra(i);
+	}//ÇóÃ¿¸öµãµ½ÆäËûµã×î¶Ì¾àÀë
+
+
+	while (!packages.empty()) {//¶ÔÓÚÃ¿Ò»ÌË£¬Èç¹û°ü¹üÃ»ËÍÍê
+		if (curtime[!curCarID] <= curtime[curCarID])//ÏÈ±È½Ï£¬Èç¹ûÖ®Ç°Î´±»Ñ¡ÖĞµÄ³µÁ¾ÔÚÑ¡ÖĞ³µÁ¾Ç°ÒÑ»ØÀ´
+			if (curtime[!curCarID] == curtime[curCarID])//Èç¹ûÍ¬Ê±µÖ´ï£¬ÔòĞ¡³µ»áÍ¬Ê±³ö·¢£¬ÓÉÓÚ°ü¹üË³Ğò×îÍíµÖ´ïÊ±¼äÓÅÏÈ¼¶½Ï¸ß£¬Òò´ËÑ¡ÔñËÙ¶È¿ìµÄ
+				curCarID = cars[0].speed < cars[1].speed ? 1 : 0;
+			else//Èç¹û²»ÊÇ£¬ÔòÎ´Ñ¡ÖĞĞ¡³µÒÑ³ö·¢£¬½ÓÏÂÀ´ÔËĞĞÎ´Ñ¡ÖĞĞ¡³µÂ·Ïß¹æ»®
+				curCarID = ~curCarID;
+		//Èç¹ûÎ´Ñ¡ÖĞĞ¡³µÈÔÎ´µÖ´ï£¬Ôò¼ÌĞøµ±Ç°Ğ¡³µ
+		sort(packages.begin(), packages.end(),
+			[&](const Package& a, const Package& b) {
+				bool IfAvaliable_a = a.Stime <= curtime[curCarID];
+				bool IfAvaliable_b = b.Stime <= curtime[curCarID];
+				if (IfAvaliable_a != IfAvaliable_b)
+					return IfAvaliable_a < IfAvaliable_b;
+				bool IfTimeOut_a = dist[1][a.dest] / cars[curCarID].speed > a.Ttime - curtime[curCarID];
+				bool IfTimeOut_b = dist[1][b.dest] /cars[curCarID].speed > b.Ttime - curtime[curCarID];
+				//°ü¹üÔ¤¼ÆÊÇ·ñ³¬Ê±£¬¸ù¾İ×î¶ÌÂ·¾¶£¬Èç¹û¼´Ê¹×î¶ÌÂ·¾¶ÏÂÈÔ¾É»á³¬Ê±£¬ÄÇËûÌú¶¨³¬Ê±
+				if (IfTimeOut_a != IfTimeOut_b)//Èç¹ûÆäÖĞÒ»¸ö³¬Ê±£¬ÁíÒ»¸öÃ»ÓĞ£¬ÄÇÃ´Ã»³¬Ê±µÄµ½Ç°Ãæ
+					return IfTimeOut_a < IfTimeOut_b;
+				if (a.Ttime != b.Ttime)//Èç¹û¶¼²»»á³¬Ê±£¬£¨¶¼³¬Ê±ÁËÎŞËùÎ½£©£¬×î½ôÆÈµÄµ½Ç°Ãæ
+					return a.Ttime < b.Ttime;
+				return dist[1][a.dest] < dist[1][b.dest];//¾àÀëæäÕ¾½üµÄÓÅÏÈ£¬²»¹ı¸Ğ¾õÎŞËùÎ½
+			});//²»È·¶¨ÓÅÏÈ¶ÓÁĞÄÜ·ñ¸ù¾İÍâ²¿±äÁ¿ÊµÊ±¸üĞÂ£¬Ã¿´ÎÑ­»·Ê¹ÓÃsortÖØÅÅ
+		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>> selected_packages;
+		for (long long i = 0,earltime=LLONG_MAX,earlpid=1; i < packages.size(); i++) {
+			if ((cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight)&&
+				(cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight/10
+					|| packages[i].Stime<=curtime[curCarID]||
+					packages[i].Stime+dist[1][earlpid]<=earltime))
+			{//Ë³ĞòÑ¡°ü¹ü£¬µ±°ü¹ü¿ÉÒÔ·ÅÈëÇÒ°ü¹ü¼ÓÉÏÈ¥ºóÈÔĞ¡ÓÚ×î´óÔØÖØµÄ1/10
+				//»òÕß°ü¹ü²»»áÓ°Ïì×î½ôÆÈ°ü¹üµ½´ï»òÕß°ü¹üÒÑµ½´ï£¬Ôò½«°ü¹ü·ÅÈë
+				if (earltime > packages[i].Ttime&&packages[i].Ttime<=curtime[curCarID]+dist[1][packages[i].dest])
+				{
+					earltime = packages[i].Ttime;
+					earlpid = packages[i].id;
+				}
+				selected_packages[packages[i].dest].push(packages[i]);
+				cars[curCarID].curload += packages[i].weight;
+				packages.erase(packages.begin() + i); i--;
+				if (cars[curCarID].curload == cars[curCarID].maxlweight)
+					break;
+			}
+		}
+		long long current_spot = 1;
+		HeapSort_For_PA prqueues(dist, selected_packages, current_spot);
+		for (auto it : selected_packages)
+			prqueues.push(it.first);
+		long long orders = prqueues.pop();
+		costs += (cars[curCarID].curload + cars[curCarID].dweight) * dist[1][orders];
+		curtime[curCarID] += dist[1][orders] / cars[curCarID].speed;
+		distance += dist[1][orders];
+		while (!selected_packages[orders].empty()) {
+			Package temp = selected_packages[orders].top(); selected_packages[orders].pop();
+			cars[curCarID].curload -= temp.weight;
+			Cpackage[temp.id] = distance * temp.weight;
+			if (curtime[curCarID] > temp.Ttime)
+			{
+				TimeOutPackages++;
+				TOpackage.insert(temp.id);
+			}
+		}
+		while (!prqueues.empty()) {
+			current_spot = orders;
+			prqueues.Resort();
+			orders = prqueues.pop();
+			costs += (cars[curCarID].curload + cars[curCarID].dweight) * dist[current_spot][orders];
+			curtime[curCarID] += dist[current_spot][orders] / cars[curCarID].speed;
+			distance += dist[current_spot][orders];
+			while (!selected_packages[orders].empty()) {
+				Package temp = selected_packages[orders].top();
+				selected_packages[orders].pop();
+				cars[curCarID].curload -= temp.weight;
+				Cpackage[temp.id] = distance * temp.weight;
+				if (curtime[curCarID]> temp.Ttime)
+				{
+					TimeOutPackages++;
+					TOpackage.insert(temp.id);
+				}
+			}
+		}
+		costs += (cars[curCarID].curload + cars[curCarID].dweight) * dist[orders][1];
+		curtime[curCarID] += dist[orders][1] / cars[curCarID].speed;
+		distance = 0; cars[curCarID].curload = 0;
+	}
+	//½á¹û
+	string result = "";
+	result += "total cost:"; result += to_string(costs); result += '\n';
+	result += "total time out packages:"; result += to_string(TimeOutPackages); result += '\n';
+	result += "cost of each package:\n";
+	for (auto it : Cpackage) {
+		result += "id:"; result += to_string(it.first); result += " cost:";
+		result += to_string(it.second); result += '\n';
+	}
+	result += "Time out packages:\n";
+	for (auto it : TOpackage)
+	{
+		result += to_string(it); result += '\n';
+	}
+	return result;
+}
+

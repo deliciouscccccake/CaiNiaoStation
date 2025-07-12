@@ -57,6 +57,7 @@ public:
 	bool empty();
 };
 string task3(const string& command);
+string extask1(const string& command);
 //struct Node { int loc; /* ¡­ */ };
 //auto cmp = [&](const Node& a, const Node& b) { /* ¶¯Ì¬±È½Ï */ };
 //std::priority_queue<Node, vector<Node>, decltype(cmp)> pq(cmp);
