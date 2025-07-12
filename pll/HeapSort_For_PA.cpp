@@ -37,11 +37,13 @@ void HeapSort_For_PA::swiftdown(long long i, long long n) {
 	t = elems[i];
 	while ((j = 2 * i + 1) < n) {
 		if (j < n - 1 && compare(elems[j + 1], elems[j])) j++;
-		if (compare(elems[j],t)) {//如果t比子结点小，不符合堆的定义
+		if (compare(elems[j], t)) {//如果t比子结点小，不符合堆的定义
 			elems[i] = elems[j]; //将较大的值放入根a[i]。
 			elems[j] = t; // 完成“交换”
 			i = j; //向下：结点a[j]作为新的要调整的子树的根
 		}
+		else
+			break;
 	}
 }
 long long HeapSort_For_PA::pop() {
@@ -52,9 +54,9 @@ long long HeapSort_For_PA::pop() {
 	return result;
 }
 void HeapSort_For_PA::Resort() {
-	int i;
+	long long i;
 	//从最后一个非叶子结点开始调整，依次向上，一直到根a[0],构成初始堆
-	for (i = (elems.size() - 2) / 2; i >= 0; i--)
+	for (i = (elems.size() - 1) / 2; i >= 0; i--)
 		swiftdown( i, elems.size());
 }
 bool  HeapSort_For_PA::empty() {

@@ -19,7 +19,7 @@ public:
 	MAP() { Roads.push_back(std::vector<EdgeNode>()); }
 	bool InsertLocation(const string& target);//添加元素
 	bool InsertRoad(int id1, int id2, int distance);
-	std::vector<long long> Dijkstra(int start);//计算单个点到各个点的最小距离
+	std::vector<long long> Dijkstra(int start);//计算单个点到各个点的最小距离,求所有节点也可使用Floyd算法
 };
 struct Package {
 	int id;
