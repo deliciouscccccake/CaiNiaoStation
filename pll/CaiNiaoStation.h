@@ -14,7 +14,7 @@ public:
 		int to;
 		long long distance;
 	};
-	std::map<string, int> Loclist;//地点集
+	std::map<string, long long> Loclist;//地点集
 	std::vector<std::vector<EdgeNode>> Roads;//邻接表，第一个元素为空 //%：改用vector更方便使用
 	MAP() { Roads.push_back(std::vector<EdgeNode>()); }
 	bool InsertLocation(const string& target);//添加元素
@@ -56,6 +56,7 @@ public:
 	void Resort();
 	bool empty();
 };
+void Initial_MAP(const string& command);
 string task3(const string& command);
 string extask1(const string& command);
 //struct Node { int loc; /* … */ };

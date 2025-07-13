@@ -1,4 +1,4 @@
-#include "CaiNiaoStation.h"
+
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -19,6 +19,7 @@ using namespace std;
 #include <set>
 #include <cctype>
 #include <stack>
+#include "CaiNiaoStation.h"
 bool HeapSort_For_PA::compare(const long long& a, const long long& b) {
 	if (spack[a].top().Ttime != spack[b].top().Ttime)
 		return spack[a].top().Ttime < spack[b].top().Ttime;
@@ -49,8 +50,9 @@ void HeapSort_For_PA::swiftdown(long long i, long long n) {
 long long HeapSort_For_PA::pop() {
 	long long result = elems[0];
 	swap(elems[0], elems[elems.size() - 1]);
-	elems.pop_back();
-	swiftdown(0, elems.size());
+	elems.pop_back(); 
+	if(!empty())
+		swiftdown(0, elems.size());
 	return result;
 }
 void HeapSort_For_PA::Resort() {

@@ -47,8 +47,8 @@ bool MAP::InsertRoad(int id1, int id2, int distance) {
 	return true;
 }
 vector<long long> MAP::Dijkstra(int start) {	// %：修改了dijkstra，使之适配修改后的数据结构
-	vector<int> visited(Loclist.size(), 0);//记录遍历过的节点
-	vector<long long> dist(Loclist.size(), LLONG_MAX);//记录到起点的最短路径长
+	vector<int> visited(Roads.size(), 0);//记录遍历过的节点
+	vector<long long> dist(Roads.size(), LLONG_MAX);//记录到起点的最短路径长
 	//vector<int> path(Loclist.size(), 0);//记录上一个节点，暂时不用
 	priority_queue<Edge, vector<Edge>, Edge::cmp> prqueues;//存入可用的dist
 
@@ -78,6 +78,9 @@ string task3(const string& command) {
 	long long distance=0;//记录已经行走的距离
 	long long TimeOutPackages = 0;//记录超时包裹数
 	long long costs = 0;//记录总代价
+	long long curtime = 0;//记录当前时间
+
+
 	stringstream ss(command);
 	int carnum; ss >> carnum;
 	trolley car;
@@ -87,11 +90,14 @@ string task3(const string& command) {
 	vector<Package> packages(packnum);
 	for (long long i = 0; i < packnum; i++)
 		ss >> packages[i].id >> packages[i].weight >> packages[i].dest >> packages[i].Stime >> packages[i].Ttime;
-	long long curtime = 0;//记录当前时间
-	vector<vector<long long>> dist(ecmap.Loclist.size());
-	for (long long i = 1; i < ecmap.Loclist.size(); i++) {
+
+
+	vector<vector<long long>> dist(ecmap.Roads.size());
+	for (long long i = 1; i < ecmap.Roads.size(); i++) {
 		dist[i] = ecmap.Dijkstra(i);
 	}//求每个点到其他点最短距离
+
+
 	while (!packages.empty()) {//对于每一趟，如果包裹没送完
 		sort(packages.begin(), packages.end(),
 			[&](const Package& a, const Package& b) {
@@ -132,6 +138,7 @@ string task3(const string& command) {
 				TOpackage.insert(temp.id);
 			}
 		}
+
 		while (!prqueues.empty()) {
 			current_spot = orders;
 			prqueues.Resort();
@@ -170,6 +177,7 @@ string task3(const string& command) {
 		result += to_string(it); result += '\n';
 	}
 	return result;
+
 }
 string extask1(const string& command) {
 	set<long long> TOpackage;//记录超时的包裹，顺序输出
@@ -198,11 +206,12 @@ string extask1(const string& command) {
 
 
 	while (!packages.empty()) {//对于每一趟，如果包裹没送完
+		
 		if (curtime[!curCarID] <= curtime[curCarID])//先比较，如果之前未被选中的车辆在选中车辆前已回来
 			if (curtime[!curCarID] == curtime[curCarID])//如果同时抵达，则小车会同时出发，由于包裹顺序最晚抵达时间优先级较高，因此选择速度快的
 				curCarID = cars[0].speed < cars[1].speed ? 1 : 0;
 			else//如果不是，则未选中小车已出发，接下来运行未选中小车路线规划
-				curCarID = ~curCarID;
+				curCarID = !curCarID;
 		//如果未选中小车仍未抵达，则继续当前小车
 		sort(packages.begin(), packages.end(),
 			[&](const Package& a, const Package& b) {
@@ -239,11 +248,13 @@ string extask1(const string& command) {
 					break;
 			}
 		}
+
 		long long current_spot = 1;
 		HeapSort_For_PA prqueues(dist, selected_packages, current_spot);
 		for (auto it : selected_packages)
 			prqueues.push(it.first);
 		long long orders = prqueues.pop();
+	
 		costs += (cars[curCarID].curload + cars[curCarID].dweight) * dist[1][orders];
 		curtime[curCarID] += dist[1][orders] / cars[curCarID].speed;
 		distance += dist[1][orders];
@@ -257,6 +268,7 @@ string extask1(const string& command) {
 				TOpackage.insert(temp.id);
 			}
 		}
+	
 		while (!prqueues.empty()) {
 			current_spot = orders;
 			prqueues.Resort();
@@ -276,9 +288,11 @@ string extask1(const string& command) {
 				}
 			}
 		}
+	
 		costs += (cars[curCarID].curload + cars[curCarID].dweight) * dist[orders][1];
 		curtime[curCarID] += dist[orders][1] / cars[curCarID].speed;
 		distance = 0; cars[curCarID].curload = 0;
+	
 	}
 	//结果
 	string result = "";
@@ -296,4 +310,86 @@ string extask1(const string& command) {
 	}
 	return result;
 }
+void Initial_MAP(const string& command) {
+	stringstream ss; long long n, m;
+	ss << command;
+	ss >> n >> m; ss.ignore();
+	string temp;
+	for (int i = 0; i < n; i++)
+	{
+		getline(ss, temp);
+		ecmap.InsertLocation(temp);
+	}
+	for (int i = 0, u, v, w; i < m; i++)
+	{
+		ss >> u >> v >> w;
+		ecmap.InsertRoad(u, v, w);
+	}
+}
+int main(){
+	string mapData =
+"15 22\n"
+"GATE1\n"
+"ADMIN_BUILDING\n"
+"PHYSICS_BUILDING\n"
+"LIBRARY\n"
+"QUNXIANTANG\n"
+"SIQUNTANG\n"
+"CHEMISTRY_BUILDING\n"
+"BIOLOGY_BUILDING\n"
+"GEOLOGY_BUILDING\n"
+"DORM5\n"
+"HE_DONG_DINING\n"
+"HE_XI_DINING\n"
+"LIWA_DINING\n"
+"SPORTS_FIELD\n"
+"SWIMMING_POOL\n"
+"1 2 120\n"
+"1 4 150\n"
+"1 3 200\n"
+"2 3 80\n"
+"2 5 70\n"
+"5 6 60\n"
+"6 4 50\n"
+"3 7 60\n"
+"7 8 90\n"
+"8 9 110\n"
+"9 4 100\n"
+"4 14 150\n"
+"14 15 70\n"
+"15 10 90\n"
+"10 11 50\n"
+"11 12 80\n"
+"12 13 120\n"
+"13 14 140\n"
+"9 11 130\n"
+"3 15 140\n"
+"2 7 100\n"
+"1 9 210";
+Initial_MAP(mapData);
+std::string inputData =
+		"1\n"
+		"1 100 20\n"
+		"5\n"
+		"1 5 10 0 300\n"
+		"2 8 4 0 200\n"
+		"3 6 7 0 250\n"
+		"4 3 14 0 400\n"
+		"5 4 12 0 350\n";
+cout << task3(inputData);
+cout << "\n\n\n*************拓展任务部分:***********\n\n\n";
+ inputData=
+"2\n"
+"60 100 15\n"
+"55 95 20\n"
+"6\n"
+"1 6 11 0 350\n"
+"2 8 7 0 300\n"
+"3 4 9 0 400\n"
+"4 5 14 0 450\n"
+"5 7 10 0 500\n"
+"6 3 4 0 250\n";
+ cout<<endl<<extask1(inputData)<<endl;
+}
+
 
