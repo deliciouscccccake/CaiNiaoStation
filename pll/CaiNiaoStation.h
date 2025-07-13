@@ -40,7 +40,7 @@ struct trolley {//快递小车
 	int curload = 0;
 };
 class HeapSort_For_PA {
-private:
+protected:
 	vector<long long> elems;
 	vector<vector<long long>>& dists;
 	map<long long, priority_queue <Package, vector<Package>,Package::ttimecmp>>& spack;
@@ -50,15 +50,23 @@ public:
 		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>>& spack,long long& spot)
 		:spack{spack}, dists{ dists }, spot{spot}{}
 	void push(long long elem);
-	bool compare(const long long& a, const long long& b);
+	virtual bool compare(const long long& a, const long long& b);
 	void swiftdown(long long i, long long n);//i为根节点位置，n为节点总数
 	long long pop();
 	void Resort();
 	bool empty();
 };
+class HeapSort_For_PA_Cost_First :public HeapSort_For_PA {
+public:
+	HeapSort_For_PA_Cost_First(vector<vector<long long>>& dists,
+		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>>& spack, long long& spot) :
+		HeapSort_For_PA(dists, spack, spot) {}
+	bool compare(const long long& a, const long long& b) override;
+};
 void Initial_MAP(const string& command);
 string task3(const string& command);
 string extask1(const string& command);
+string extask3(const string& command);
 //struct Node { int loc; /* … */ };
 //auto cmp = [&](const Node& a, const Node& b) { /* 动态比较 */ };
 //std::priority_queue<Node, vector<Node>, decltype(cmp)> pq(cmp);
