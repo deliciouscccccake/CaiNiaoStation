@@ -122,6 +122,7 @@ Tree::~Tree()
 	}
 	delete[] fa, maxd;
 }
+
 Tree::Tree(std::vector<int> f, std::vector<long long> d) // 只要一层双亲数组、双亲边的长度和结点数量即可建树，注意根节点的双亲应该是自己
 :fa(new int*[f.size()]), n(f.size() - 1), lgn(0), dep(new int[f.size()]), maxd(new long long*[f.size()])//lgn先等于0
 {
@@ -197,15 +198,6 @@ void Init(const string& command)
 }
 
 string task3(const string& command) {
-	stringstream ss(command);
-	int carnum; ss >> carnum;
-	trolley car;
-	for (int i = 0; i < carnum; i++) //形式化，其实只有一辆车
-		ss >> car.speed >> car.dweight >> car.maxlweight;
-	int packnum; ss >> packnum;
-	vector<Package> packages(packnum);
-	for (int i = 0; i < packnum; i++)
-		ss >> packages[i].id >> packages[i].weight >> packages[i].dest >> packages[i].Stime >> packages[i].Ttime;
 
 }
 
@@ -367,14 +359,47 @@ string task5(const string &command) // 根据样例给的输入，函数内还�
 	return outStr;
 }
 
+string extask2(const string& command)
+{
+	std::istringstream iss(command);
+	int n, k, x;
+	iss >> n >> k >> x;
+	// arr表示到达时间 sarr表示arr的前缀和 f表示dp结果（f[i]表示送前n个包裹的最小不满意度） t表示最优方案的发货时间
+	long long *arr = new long long[n + 1], *sarr = new long long[n + 1], *f = new long long[n + 1], *t = new long long[n + 1];
+	arr[0] = f[0] = 0;t[0] = -k; //方便计算
+	for(int i = 1;i <= n;++i)
+	{
+		iss >> arr[i];
+		f[i] = LONG_LONG_MAX >> 1;
+	}
+	std::sort(arr + 1, arr + 1 + n);
+	for(int i = 1;i <= n;++i)
+	{
+		sarr[i] = sarr[i - 1] + arr[i];
+	}
+
+	for(int i = 1;i <= n;++i)
+	{
+		for(int j = max(i - k, 0);j <= i - 1;++j) // 选择j+1~i的包裹发送，如此选择的j方便处理
+		{
+			long long sen = max(arr[i], t[j] + x); // 送达时间
+			if(f[j] + sen * (i - j) - (sarr[i] - sarr[j]) < f[i])
+			{
+				f[i] = f[j] + sen * (i - j) - (sarr[i] - sarr[j]);
+				t[i] = sen;
+			}
+		}
+	}
+
+	delete[] arr, sarr, f, t;
+
+	return std::to_string(f[n]) + '\n';
+}
+
 int main() // 只是为了方便测试，到时迁移到Qt时需要删去
 {
-	std::ifstream input("g.txt");
-	Init(string(istreambuf_iterator<char>(input), istreambuf_iterator<char>()));
-	input.close();
-	
-	input.open("in.txt");
-	cout << task4(string(istreambuf_iterator<char>(input), istreambuf_iterator<char>()));
+	ifstream input("in.txt");
+	cout << extask2(string(istreambuf_iterator<char>(input), istreambuf_iterator<char>()));
 	input.close();
 	return 0;
 }
