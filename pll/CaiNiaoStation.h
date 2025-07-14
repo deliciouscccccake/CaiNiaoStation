@@ -34,10 +34,10 @@ struct Package {
 	};
 };
 struct trolley {//快递小车
-	int speed;
-	int dweight;//自重
-	int maxlweight;//最大装载重量
-	int curload = 0;
+	long long speed;
+	long long dweight;//自重
+	long long maxlweight;//最大装载重量
+	long long curload = 0;
 };
 class HeapSort_For_PA {
 protected:
@@ -57,10 +57,14 @@ public:
 	bool empty();
 };
 class HeapSort_For_PA_Cost_First :public HeapSort_For_PA {
+private:
+	long long& curLoad;      // 引用外部的当前载重
+	 long long dweight;
 public:
 	HeapSort_For_PA_Cost_First(vector<vector<long long>>& dists,
-		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>>& spack, long long& spot) :
-		HeapSort_For_PA(dists, spack, spot) {}
+		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>>& spack, long long& spot
+	,long long& curLoad, long long dweight) :
+		HeapSort_For_PA(dists, spack, spot),curLoad(curLoad),dweight(dweight) {}
 	bool compare(const long long& a, const long long& b) override;
 };
 void Initial_MAP(const string& command);

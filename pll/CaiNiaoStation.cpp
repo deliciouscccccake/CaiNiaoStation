@@ -34,7 +34,7 @@ bool MAP::InsertLocation(const string& target) {
 	auto it = Loclist.find(target);
 	if (it == Loclist.end())
 	{
-		long long index = Loclist.size();
+		long long index = Loclist.size()+1;
 		Loclist[target] = index;
 		Roads.push_back(std::vector<EdgeNode>());
 		return true;
@@ -199,20 +199,20 @@ string extask1(const string& command) {
 		ss >> packages[i].id >> packages[i].weight >> packages[i].dest >> packages[i].Stime >> packages[i].Ttime;
 
 
-	vector<vector<long long>> dist(ecmap.Loclist.size()); int curCarID = 0;
-	for (long long i = 1; i < ecmap.Loclist.size(); i++) {
+	vector<vector<long long>> dist(ecmap.Roads.size()); int curCarID = 0;
+	for (long long i = 1; i < ecmap.Roads.size(); i++) {
 		dist[i] = ecmap.Dijkstra(i);
 	}//求每个点到其他点最短距离
 
-
-	while (!packages.empty()) {//对于每一趟，如果包裹没送完		
+	while (!packages.empty()) {//对于每一趟，如果包裹没送完
+		
 		if (curtime[!curCarID] <= curtime[curCarID])//先比较，如果之前未被选中的车辆在选中车辆前已回来
 			if (curtime[!curCarID] == curtime[curCarID])//如果同时抵达，则小车会同时出发，由于包裹顺序最晚抵达时间优先级较高，因此选择速度快的
 				curCarID = cars[0].speed < cars[1].speed ? 1 : 0;
 			else//如果不是，则未选中小车已出发，接下来运行未选中小车路线规划
 				curCarID = !curCarID;
 		//如果未选中小车仍未抵达，则继续当前小车
-
+	
 		//包裹排序策略
 		sort(packages.begin(), packages.end(),
 			[&](const Package& a, const Package& b) {
@@ -229,15 +229,15 @@ string extask1(const string& command) {
 					return a.Ttime < b.Ttime;
 				return dist[1][a.dest] < dist[1][b.dest];//距离驿站近的优先，不过感觉无所谓
 			});//不确定优先队列能否根据外部变量实时更新，每次循环使用sort重排
-
+		
 		//包裹装载策略
 		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>> selected_packages;
 		for (long long i = 0,earltime=LLONG_MAX,earlpid=1; i < packages.size(); i++) {
 			if ((cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight)&&
-				(cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight/10
+				(cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight/5
 					|| packages[i].Stime<=curtime[curCarID]||
 					packages[i].Stime+dist[1][earlpid]<=earltime))
-			{//顺序选包裹，当包裹可以放入且包裹加上去后仍小于最大载重的1/10
+			{//顺序选包裹，当包裹可以放入且包裹加上去后仍小于最大载重的1/5
 				//或者包裹不会影响最紧迫包裹到达或者包裹已到达，则将包裹放入
 				if (earltime > packages[i].Ttime&&packages[i].Ttime<=curtime[curCarID]+dist[1][packages[i].dest])
 				{
@@ -252,14 +252,13 @@ string extask1(const string& command) {
 					break;
 			}
 		}
-
 		//包裹运输策略
 		long long current_spot = 1;
 		HeapSort_For_PA prqueues(dist, selected_packages, current_spot);
 		for (auto it : selected_packages)
 			prqueues.push(it.first);
 		long long orders = prqueues.pop();
-		
+
 		//实际运输
 		costs += (cars[curCarID].curload + cars[curCarID].dweight) * dist[1][orders];
 		curtime[curCarID] += dist[1][orders] / cars[curCarID].speed;
@@ -336,8 +335,8 @@ string extask3(const string& command){
 		ss >> packages[i].id >> packages[i].weight >> packages[i].dest >> packages[i].Stime >> packages[i].Ttime;
 
 
-	vector<vector<long long>> dist(ecmap.Loclist.size()); int curCarID = 0;
-	for (long long i = 1; i < ecmap.Loclist.size(); i++) {
+	vector<vector<long long>> dist(ecmap.Roads.size()); int curCarID = 0;
+	for (long long i = 1; i < ecmap.Roads.size(); i++) {
 		dist[i] = ecmap.Dijkstra(i);
 	}//求每个点到其他点最短距离
 
@@ -355,6 +354,8 @@ string extask3(const string& command){
 			[&](const Package& a, const Package& b) {
 				if(dist[1][a.dest] != dist[1][b.dest])
 					return dist[1][a.dest] < dist[1][b.dest];//距离驿站近的优先，便于聚合
+				if (a.dest != b.dest)
+					return a.dest < b.dest;
 				bool IfAvaliable_a = a.Stime <= curtime[curCarID];
 				bool IfAvaliable_b = b.Stime <= curtime[curCarID];
 				if (IfAvaliable_a != IfAvaliable_b)
@@ -371,10 +372,10 @@ string extask3(const string& command){
 		//包裹装载策略
 		map<long long, priority_queue <Package, vector<Package>, Package::ttimecmp>> selected_packages;
 		for (long long i = 0, lowestdist=LLONG_MAX, earlpid = 1; i < packages.size(); i++) {
-			if ((cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight) &&
-				packages[i].dest<5*lowestdist)
-			{//顺序选包裹，当包裹可以放入且包裹加上去后仍小于最大载重的1/10
-				//或者包裹不会影响最紧迫包裹到达或者包裹已到达，则将包裹放入
+			if ((cars[curCarID].curload + packages[i].weight <= cars[curCarID].maxlweight)
+				&&packages[i].dest<5*lowestdist
+				)
+			{//顺序选包裹，当包裹可以放入且包裹加上去后
 				lowestdist = lowestdist < 5 * dist[1][packages[i].dest] ? lowestdist : 5 * dist[1][packages[i].dest];
 				curtime[curCarID] = max(curtime[curCarID], packages[i].Stime);//若当前时间小于包裹到达时间，则等待至包裹到达
 				selected_packages[packages[i].dest].push(packages[i]);
@@ -384,10 +385,9 @@ string extask3(const string& command){
 					break;
 			}
 		}
-
 		//包裹运输策略
 		long long current_spot = 1;
-		HeapSort_For_PA_Cost_First prqueues(dist, selected_packages, current_spot);
+		HeapSort_For_PA_Cost_First prqueues(dist, selected_packages, current_spot,cars[curCarID].curload,cars[curCarID].dweight);
 		for (auto it : selected_packages)
 			prqueues.push(it.first);
 		long long orders = prqueues.pop();
@@ -531,4 +531,16 @@ cout << "\n\n\n*************拓展任务部分:***********\n\n\n";
  
  cout << "\n\n\n*************拓展任务部分5:***********\n\n\n";
  cout << endl << extask3(inputData) << endl;
+
+ cout << "\n\n\n*************测试样例:***********\n\n\n";
+ ifstream file; string command = "", temp;
+ file.open("C:/Users/pll/Desktop/skin/summer2025/cainiao/CaiNiaoStation/pll/测试数据/test_4.txt");
+ while (getline(file, temp)) {
+	 command += temp; command += "\n";
+ }
+ cout << "command" << command << endl;
+ cout << "\n\n\n*************extask1:***********\n\n\n";
+ cout << endl << extask1(command) << endl;
+ cout << "\n\n\n*************extask3:***********\n\n\n";
+ cout << endl << extask3(command) << endl;
 }

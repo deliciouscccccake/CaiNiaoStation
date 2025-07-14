@@ -68,7 +68,9 @@ bool  HeapSort_For_PA::empty() {
 }
 //优先考虑时间相近性，减少成本;
 bool HeapSort_For_PA_Cost_First::compare(const long long& a, const long long& b) {
-	if(dists[spot][a] != dists[spot][b])
-		return dists[spot][a] < dists[spot][b];
+	long long costA = (curLoad + dweight) * dists[spot][a];
+	long long costB = (curLoad + dweight) * dists[spot][b];
+	if (costA != costB)
+		return costA < costB;
 	return spack[a].top().Ttime < spack[b].top().Ttime;
 }
